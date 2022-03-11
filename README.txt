@@ -12,7 +12,7 @@ Nottingham, 11/03/22
 Compile time options are included in the Makefile.  Requirements are a
 C compiler and link to the numerical library used for solving the
 stiff differential equations for the ionisation balance (SUNDIALS
-v2.7.0, my local build has been provided in this bundle).
+v2.7.0.  A local build has been provided in this bundle).
 
 https://computing.llnl.gov/projects/sundials/sundials-software
 
@@ -34,14 +34,20 @@ parameters.h.
 uvb_models/ contains a selection of ASCII tables with the
 photoionisation and photoheating rates predicted by a variety of
 published UVB synthesis models.  These can be selected within
-parameters.h
+parameters.h.  The reference papers are:
+
+Haardt & Madau, 2012, ApJ, 746, 125
+Khaire & Srianand, 2019, MNRAS, 484, 4174
+Puchwein et al. 2019, MNRAS, 485, 47
+Faucher-Giguere 2020, MNRAS, 493, 1614
 
 python_routines/ contains a simple python code that reads in the
-output from the C code and plots the data within.
+output from the C code and plots a selection of data.
 
 secondaries/ contains binary look-up tables for the implementation of
-secondary ionisations by fast electrons.  Note that secondary
-ionisations have a very small effect on the gas temperature at z~0.
+secondary ionisations by fast electrons.  The reference paper is:
+
+Furlanetto & Johnson-Stoever, 2010, MNRAS, 404, 1869
 
 ---------------------------------------------------------------
 
