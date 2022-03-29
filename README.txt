@@ -2,10 +2,10 @@
 ---------------------------------------------------------------
 
 Brief notes on use of the non-equilibrium photoionisation code used in
-Bolton et al. (2021), MNRAS submitted, arXiv:2111.09600
+Bolton et al. (2022), MNRAS in press, arXiv:2111.09600
 
 James S. Bolton,
-Nottingham, 11/03/22
+Nottingham, 29/03/22
 
 ---------------------------------------------------------------
 
