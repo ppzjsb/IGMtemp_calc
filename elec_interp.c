@@ -172,8 +172,9 @@ void initialize_interp_arrays()
 
   float xHI,xHeI,xHeII,z,T;
   float trash;
-  char label[] = " ";
-
+  //char label[] = " ";
+  char label[100]; /* JSB 16/06/22: fix for fscanf error that occurs for some compiler options */
+  
   int i;
   int n_ion;
 
