@@ -168,7 +168,7 @@ static int f_solve_rates(realtype dt, N_Vector y, N_Vector ydot, void *user_data
   double LambdaExc, LambdaIon, LambdaRec, LambdaFF, LambdaCmptn;
   double LambdaExcH0, LambdaExcHe0, LambdaExcHep, LambdaIonH0, LambdaIonHe0, LambdaIonHep;
   double LambdaRecHp, LambdaRecHep, LambdaRecHepp, LambdaRecHepd;
-  double t, fhi, flow, Tlow, Thi;
+  double t, fhi, flow;
   int j;
 
   
@@ -192,11 +192,9 @@ static int f_solve_rates(realtype dt, N_Vector y, N_Vector ydot, void *user_data
   
    
   /* Obtain interpolations from the cooling table*/
-  t = (log10(T) - logTmin) / deltaT;
-  j = (int) t;
-  Tlow = logTmin + deltaT * j;
-  Thi = Tlow + deltaT;
-  fhi = t - j;
+  t    = (log10(T) - logTmin) / deltaT;
+  j    = (int) t;
+  fhi  = t - j;
   flow = 1 - fhi;
 
 
