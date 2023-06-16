@@ -1,5 +1,10 @@
 
 
+
+#if defined(SECONDARY) && !defined(PLAW_UVB)
+#error "SECONDARY requires PLAW_UVB"
+#endif
+
 /* Maximum energy [eV] used in the integrals */
 #define EMAX 1.0e4
 
@@ -17,6 +22,11 @@
 double *weight, *absc;
 double gJH0,gJHe0,gJHep,epsH0,epsHe0,epsHep;
 double redshift,Ha;
+
+
+#ifdef DARK_PHOTON
+double Heat_dark;
+#endif
 
 /* Define physical constants, cgs units
 https://physics.nist.gov/cuu/Constants/index.html  */

@@ -1,29 +1,32 @@
 
 #######################################################################
-#  Look at end of file for a brief guide to the compile-time options. #
+#
+#   Non-equilibrium ionisation code for modelling atom/ion abundances
+#   and temperature in a low density hydrogen and helium plasma.  Look
+#   at end of file for a brief guide to the compile-time options.
+#
 #######################################################################
 
 #--------------------------------------- Options
 #OPTS +=-DPLAW_UVB
-OPTS +=-DSECONDARY
-#OPTS +=-DNO_HE2_HEAT
+OPTS +=-DDARK_PHOTON
+#OPTS +=-DSECONDARY
 
 #--------------------------------------- Select system
-#SYSTYPE="macbook13"
+SYSTYPE="macbook13"
 #SYSTYPE="linux"
-SYSTYPE="local"
+#SYSTYPE="local"
 
 ifeq ($(SYSTYPE),"local")
 CC = gcc		
-OPTIMIZE  = -O0  
+OPTIMIZE  = -O3  
 CVODEINCL = -I./sundials-2.7.0/include/
 CVODELIB  = -L./sundials-2.7.0/lib/ -lsundials_cvode -lsundials_nvecserial
 endif
 
-
 ifeq ($(SYSTYPE),"macbook13")
 CC = gcc		
-OPTIMIZE  = -O0  
+OPTIMIZE  = -O3  
 CVODEINCL = -I/Users/jamesbolton/FILES/Libraries/sundials/sundials-2.7.0_instdir/include/
 CVODELIB  = -L/Users/jamesbolton/FILES/Libraries/sundials/sundials-2.7.0_instdir/lib/ -lsundials_cvode -lsundials_nvecserial
 endif
@@ -59,33 +62,37 @@ clean:
 tidy:
 	rm -f $(OBJS) $(EXEC) *~
 	cd ./secondaries/; rm -f logxe_*.dat tablesize.dat *~
-
+	cd ./idl_routines/; rm -f *~
+	cd ./python_routines/; rm -f *~
+	cd ./uvb_models/; rm -f *~
 
 ##############################################################################
 #
-# This code computes the ionisation state and temperature of a
-# hydrogen and helium gas parcel of fixed comoving density.  Parts of
-# the cooling.c routine are based on P-Gadget-3 (Springel et al. 2005,
-# MNRAS, 364, 1105)
+#  This code computes the ionisation state and temperature of a
+#  hydrogen and helium gas parcel of fixed comoving density.  Parts of
+#  the cooling.c routine are based on P-Gadget-3 (Springel et
+#  al. 2005, MNRAS, 364, 1105)
 #	
-# Options at compile-time: from the list below, activate/deactivate
-# the options that apply to your run.  If you modify any of these
-# options, make sure that you recompile the whole code by typing "make
-# clean; make".
+#  Options at compile-time: from the list below, activate/deactivate
+#  the options that apply to your run.  If you modify any of these
+#  options, make sure that you recompile the whole code by typing
+#  "make clean; make".
 #	
-# See also parameters.h for additional code settings
-# 
-# Last updated by James S. Bolton, 15/12/21
+#  See also parameters.h for additional code settings.
 #
+#  Options:
 #
-# Options:
+#	- PLAW_UVB  	Use a power-law UV background instead of the
+# 			default UV background, which is based on a
+# 			look up table obtained from a UV background
+# 			synthesis model. See parameters.h for options.
 #
-#	- PLAW_UVB	Use a power-law UVB instead of a look up table based on a UV 
-# 			background synthesis model.
+#	- SECONDARY 	Include secondary ionisations by fast
+#			photo-electrons. See Furlanetto &
+#			Johnson-Stoever 2010, MNRAS, 404,
+#			1869. Requires PLAW_UVB.
 #
-#	- SECONDARY	Include secondary ionisations by fast photo-electrons. See
-#			Furlanetto & Johnson-Stoever 2010, MNRAS, 404, 1869.
-#
-#	- NO_HE2_HEAT	Code testing option that turns off the He-II photo-heating 
+#	- DARK_PHOTON 	Include heating from the resonant conversion of
+#			dark photons.  See parameters.h for options.
 #
 ##############################################################################

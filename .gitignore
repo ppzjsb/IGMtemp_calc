@@ -1,0 +1,8 @@
+.DS_Store
+IGMtemp_calc
+*~
+*.o*
+*.e*
+*\#
+*~
+/output/*.dat

@@ -2,23 +2,19 @@
 ---------------------------------------------------------------
 
 Brief notes on use of the non-equilibrium photoionisation code used in
-Bolton et al. (2022), MNRAS in press, arXiv:2111.09600
-
-James S. Bolton,
-Nottingham, 29/03/22
+Bolton et al. (2022), MNRAS, 513, 864
+Bolton, Caputo, Liu & Viel (2022), PRL, 129, 211102
 
 ---------------------------------------------------------------
 
-Compile time options are included in the Makefile.  Requirements are a
-C compiler and link to the numerical library used for solving the
-stiff differential equations for the ionisation balance (SUNDIALS
-v2.7.0.  A local build has been provided in this bundle).
+RUNNING THE CODE:
+
+Requirements are a C compiler and the numerical library (CVODE) used
+for solving the stiff differential equations for the thermochemistry.
+For this, the SUNDIALS v2.7.0 package must be installed.  Follow the
+instructions at this link to install the library.
 
 https://computing.llnl.gov/projects/sundials/sundials-software
-
-Warning: it may be the case that you need to rebuild your own version
-of the SUNDIALS/CVODE library to run the code.  Follow the instructions at
-the above website.
 
 To compile the code, at the command line type:
 make
@@ -29,7 +25,17 @@ To run the code, at the command line type:
 A binary output file will then appear in the output/ directory.
 
 Parameters that can be varied in the code are contained in the file
-parameters.h.  
+parameters.h.
+
+Compile time options are included in the Makefile, along with descriptions.
+
+If changing the compile time options one should generate a new binary.
+To do this, at the command line type:
+make clean
+make
+
+
+ADDITIONAL FILES:
 
 uvb_models/ contains a selection of ASCII tables with the
 photoionisation and photoheating rates predicted by a variety of
@@ -43,6 +49,9 @@ Faucher-Giguere 2020, MNRAS, 493, 1614
 
 python_routines/ contains a simple python code that reads in the
 output from the C code and plots a selection of data.
+
+idl_routines/ contains a simple IDL code that does the same thing as
+the python routine. 
 
 secondaries/ contains binary look-up tables for the implementation of
 secondary ionisations by fast electrons.  The reference paper is:

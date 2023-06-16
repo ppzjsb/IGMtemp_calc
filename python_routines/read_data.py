@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # File directory and name
 base = '../output/'
-file = base+'puchwein2019.dat'
+file = base+'Plaw_J0.1_zH6.5_zHe3.0_a3.5_d1.0.dat'
 
 # Open the binary file
 readdata = open(file,"rb")

@@ -1,26 +1,32 @@
-#define fnID 3
+
+/**************************************************************************/
+
+/**! \file utils.c
+ *
+ * \brief Some general utility functions
+ *
+ */
+
+/***************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
-
 #include "parameters.h"
 #include "proto.h"
 
-/*  This function aborts the simulation */
-void endrun(int ierr)
-{
-  if(ierr)
-    {
-      fprintf(stdout,"Run terminated at level %d\n\n\n", ierr);
-      exit(1);
-    }
-  exit(0);
-}
 
-/* returns the maximum of two doubles
+
+/** \brief Returns the maximum of two doubles
+ *
+ * \param x 
+ * \param y
+ *
+ * \return Maximum of x or y
  */
+
 double dmax(double x, double y)
 {
   if(x > y)
@@ -29,7 +35,16 @@ double dmax(double x, double y)
     return y;
 }
 
-/* returns the minimum of two doubles */
+
+
+/** \brief Returns the minimum of two doubles
+ *
+ * \param x 
+ * \param y
+ *
+ * \return Minimum of x or y
+ */
+
 double dmin(double x, double y)
 {
   if(x < y)
@@ -37,3 +52,4 @@ double dmin(double x, double y)
   else
     return y;
 }
+

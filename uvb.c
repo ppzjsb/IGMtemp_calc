@@ -1,4 +1,19 @@
-#define fnID 4
+
+/**************************************************************************/
+
+/**! \file uvb.c
+ *
+ * \brief If using power-law UVB spectrum, use Gauss-Legendre
+ * quadrature to solve the integrals for the H0, He0 and He+
+ * photo-ionisation and photo-heating rates.  Optionally includes
+ * secondary ionisations by fast photo-electrons.
+ *
+ */
+
+/***************************************************************************/
+
+#ifdef PLAW_UVB
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,12 +24,10 @@
 #include "global_vars.h"
 
 
-/* Photo-ionisation cross section and UVB spectrum tables */
 static double *E_tab, *JE_tab;
 static double *sH1, *sHe1, *sHe2;
 static double dlogE_inv, logE_min, logE_max; 
 
-/* Secondary ionisation tables */
 static double **fheat_tab, **nionH1_tab, **nionHe1_tab, **nionHe2_tab;
 static double delta_logxe_inv,delta_logEsec_inv;
 
@@ -23,7 +36,11 @@ static double logEion_H1, logEion_He1, logEion_He2;
 
 #define NETAB 100000
 
-/***************************************************************************/
+
+/** \brief Allocate the memory and calculate the spectrum and
+ * cross-sections look-up tables at the start of the run
+ *
+ */
 
 void InitUVB(void)
 {
@@ -31,9 +48,15 @@ void InitUVB(void)
   MakeUVBTable();
 }
 
-/***************************************************************************/
 
-void IonizationRates(double temp, double logxe)
+
+/** \brief Evaluate the integrals for the photo-ionisation and
+ * photo-heating rates using Gauss-Legendre quadrature.
+ *
+ * \param logxe log10(nelec / nH)
+ */
+
+void IonizationRates(double logxe)
 {
 
   double sigma_H1, sigma_He1, sigma_He2;
@@ -68,18 +91,14 @@ void IonizationRates(double temp, double logxe)
   
 
 
-  /* Evaluate integrals for HI and HeI photoionisation and heating
-     rates */
   if(redshift <= ZRH1)
     {
-
-      /* HI rates.  We Integrate from EionHI to Emax using
-	 Gauss-Legendre quadrature for steps of log10(E) */
       
+      /* HI rates.  Integrate from EionHI to Emax in steps of log10(E) */
       lim_plus  = 0.5*(logE_max + logEion_H1);
       lim_minus = 0.5*(logE_max - logEion_H1);
       
-      for(i=0;i<NWEIGHTS;i++)
+      for(i=0; i<NWEIGHTS; i++)
 	{
 	  
 	  logE = lim_plus + lim_minus*absc[i]; 
@@ -90,14 +109,11 @@ void IonizationRates(double temp, double logxe)
 	  fhi  = t - j;
 	  flow = 1 - fhi;
 	  
-	  /* Set spectrum to zero at E>54.4 eV if still above HeII
-	     reionisation redshift */
+	  /* Set spectrum to zero at E>54.4 eV if z>ZRHE2 */
 	  JE = logE >= logEion_He2 && redshift > ZRHE2 ? 0.0 : flow * JE_tab[j] + fhi * JE_tab[j + 1];
 	  
-	  /* HI photoionisation cross section [cm^-2] */
 	  sigma_H1 = flow * sH1[j]  + fhi * sH1[j + 1];
 	  
-	  /* HI photoionisation rate */
 	  eval_H1 = lim_minus * weight[i]  * JE * sigma_H1;
 	  gJH0   += eval_H1;
 	  	  
@@ -147,7 +163,6 @@ void IonizationRates(double temp, double logxe)
 	  else
 	    fheat  = 1.0;
 	  
-	  /* HI photo-heating rate */
 	  epsH0 += eval_H1 * (E - EION_H1) * fheat;
 #else
 	  epsH0 += eval_H1 * (E - EION_H1); 
@@ -155,14 +170,13 @@ void IonizationRates(double temp, double logxe)
 	  
 	}
  
-
       
-      /* HeI rates */
       
+      /* HeI rates.  Integrate from EionHeI to Emax */
       lim_plus  = 0.5*(logE_max + logEion_He1);
       lim_minus = 0.5*(logE_max - logEion_He1);
       
-      for(i=0;i<NWEIGHTS;i++)
+      for(i=0; i<NWEIGHTS; i++)
 	{
 	  logE = lim_plus + lim_minus*absc[i]; 
 	  E = pow(10.0,logE);
@@ -225,7 +239,7 @@ void IonizationRates(double temp, double logxe)
 	  else
 	    fheat  = 1.0;
 	  
-      /* HeI photo-heating rate */
+	  
 	  epsHe0 += eval_He1 * (E - EION_HE1) * fheat;
 #else
 	  epsHe0 += eval_He1 * (E - EION_HE1);
@@ -234,16 +248,12 @@ void IonizationRates(double temp, double logxe)
 
     }
 
-
-
-
-   
   
-  /* HeII rates */
+  
   if(redshift <= ZRHE2)
     {
       
-      /*  Integrate from EionHeII to Emax */
+      /* HeII rates. Integrate from EionHeII to Emax */
       lim_plus  = 0.5*(logE_max + logEion_He2);
       lim_minus = 0.5*(logE_max - logEion_He2);
       
@@ -311,7 +321,7 @@ void IonizationRates(double temp, double logxe)
 	  else
 	    fheat  = 1.0;
 	  
-      /* HeII photo-heating rate */
+	  
 	  epsHep += eval_He2 * (E - EION_HE2) * fheat;
 #else
 	  epsHep += eval_He2 * (E - EION_HE2);
@@ -319,8 +329,6 @@ void IonizationRates(double temp, double logxe)
 	}
     }
 
-
-  /* Finish by multiplying through by the constants outside the integrals */
   gfac  = 4.0 * M_PI * log(10.0) / PLANCK;
   efac  = gfac * ELECTRONVOLT;
   
@@ -334,7 +342,13 @@ void IonizationRates(double temp, double logxe)
   
 }
 
-/***************************************************************************/
+
+
+/** \brief Calculate the look-up tables for the photo-ionisation
+ * cross-sections and the power-law UVB spectrum.  The cross-sections
+ * for H0, He0 and He+ are from Verner et al. 1996, ApJ, 465, 487
+ *
+ */
 
 void MakeUVBTable()
 {
@@ -364,8 +378,6 @@ void MakeUVBTable()
   dlogE     = (logE_max-logE_min) / NETAB;
   dlogE_inv = 1.0 / dlogE;
   
-
-  /* Make the look up table for the cross-sections and spectrum */
   
   for(i = 0; i <= NETAB; i++)
     {
@@ -376,7 +388,7 @@ void MakeUVBTable()
       /* Specific intensity, erg s^-1 cm^-2 sr^-1 Hz^-1 */
       JE_tab[i] = J22*1.0e-22*pow(E/EION_H1, -ALPHA_UV);
       
-      /* Photo-ionisation cross-sections, cm^-2.  From Verner et al. 1996, ApJ, 465, 487 */
+      /* Photo-ionisation cross-sections, cm^-2. */
       if(E >= EION_H1)
 	{
 	  x_v96 = E/E0_v96[0] - y0_v96[0];
@@ -409,84 +421,74 @@ void MakeUVBTable()
   
 }
 
-  
-/***************************************************************************/
+
+/** \brief Allocate the memory for the UVB and cross-section look-up tables.
+ *
+ */
 
 void InitUVBMemory(void)
 {
+  
   E_tab = (double *) calloc((NETAB + 1), sizeof(double));
-  if(NULL==E_tab){free(E_tab);printf("Memory allocation failed for E_tab.\n");
-    endrun(fnID);}
+  if(NULL==E_tab){free(E_tab); printf("Memory allocation failed for E_tab.\n"); exit(0);}
   
   JE_tab = (double *) calloc((NETAB + 1), sizeof(double));
-  if(NULL==JE_tab){free(JE_tab);printf("Memory allocation failed for JE_tab.\n");
-    endrun(fnID);}
+  if(NULL==JE_tab){free(JE_tab); printf("Memory allocation failed for JE_tab.\n"); exit(0);}
 
   sH1  = (double *) calloc((NETAB + 1), sizeof(double));
-  if(NULL==sH1){free(sH1);printf("Memory allocation failed for sH1.\n");
-    endrun(fnID);}
+  if(NULL==sH1){free(sH1); printf("Memory allocation failed for sH1.\n"); exit(0);}
   
   sHe1 = (double *) calloc((NETAB + 1), sizeof(double));
-  if(NULL==sHe1){free(sHe1);printf("Memory allocation failed for sHe1.\n");
-    endrun(fnID);}
+  if(NULL==sHe1){free(sHe1); printf("Memory allocation failed for sHe1.\n"); exit(0);}
   
   sHe2 = (double *) calloc((NETAB + 1), sizeof(double));
-  if(NULL==sHe2){free(sHe2);printf("Memory allocation failed for sHe2.\n");
-    endrun(fnID);}
+  if(NULL==sHe2){free(sHe2); printf("Memory allocation failed for sHe2.\n"); exit(0);}
 }
 
-/************************************************************************/
 
-/* Allocates the 2d arrays for the secondary ionisations look-up tables */
+/** \brief Allocate the memory for the secondary ionisation look-up
+ * table.  This is a 2D table that depends on the photo-electron
+ * energy and the free electron fraction.
+ *
+ */
 
 void InitSecondaryMemory(void)
 {
-  int i; 
   
   fheat_tab   = (double **) calloc((NXTAB+1) , sizeof(double *));
-  if(NULL==fheat_tab){free(fheat_tab);printf("Memory allocation failed for fheat_tab.\n");
-    endrun(fnID);}
+  if(NULL==fheat_tab){free(fheat_tab); printf("Memory allocation failed for fheat_tab.\n"); exit(0);}
   
   nionH1_tab  = (double **) calloc((NXTAB+1) , sizeof(double *));
-  if(NULL==nionH1_tab){free(nionH1_tab);printf("Memory allocation failed for nionH1_tab.\n");
-    endrun(fnID);}
+  if(NULL==nionH1_tab){free(nionH1_tab); printf("Memory allocation failed for nionH1_tab.\n"); exit(0);}
   
   nionHe1_tab = (double **) calloc((NXTAB+1) ,sizeof(double *));
-  if(NULL==nionHe1_tab){free(nionHe1_tab);printf("Memory allocation failed for nionHe1_tab.\n");
-    endrun(fnID);}
+  if(NULL==nionHe1_tab){free(nionHe1_tab); printf("Memory allocation failed for nionHe1_tab.\n"); exit(0);}
   
   nionHe2_tab = (double **) calloc((NXTAB+1),sizeof(double *));
-  if(NULL==nionHe2_tab){free(nionHe2_tab);printf("Memory allocation failed for nionHe2_tab.\n");
-    endrun(fnID);}
+  if(NULL==nionHe2_tab){free(nionHe2_tab); printf("Memory allocation failed for nionHe2_tab.\n"); exit(0);}
+
+  int i; 
   
   for(i = 0; i <= NXTAB; i++)
     {
       fheat_tab[i]   = (double *) calloc((NESECTAB+1) , sizeof(double));
-      if(NULL == fheat_tab[i]){
-	free(fheat_tab[i]);printf("Memory allocation failed for fheat_tab[%d][].\n",i);
-	endrun(fnID);}
+      if(NULL == fheat_tab[i]){free(fheat_tab[i]); printf("Memory allocation failed for fheat_tab[%d][].\n",i); exit(0);}
       
       nionH1_tab[i]  = (double *) calloc((NESECTAB+1) , sizeof(double));
-      if(NULL == nionH1_tab[i]){
-	free(nionH1_tab[i]);printf("Memory allocation failed for nionH1_tab[%d][].\n",i);
-	endrun(fnID);}
+      if(NULL == nionH1_tab[i]){free(nionH1_tab[i]); printf("Memory allocation failed for nionH1_tab[%d][].\n",i); exit(0);}
       
       nionHe1_tab[i] = (double *) calloc((NESECTAB+1) , sizeof(double));
-      if(NULL == nionHe1_tab[i]){
-	free(nionHe1_tab[i]);printf("Memory allocation failed for nionHe1_tab[%d][].\n",i);
-	endrun(fnID);}
+      if(NULL == nionHe1_tab[i]){free(nionHe1_tab[i]); printf("Memory allocation failed for nionHe1_tab[%d][].\n",i); exit(0);}
       
       nionHe2_tab[i] = (double *) calloc((NESECTAB+1) , sizeof(double));
-      if(NULL == nionHe2_tab[i]){
-	free(nionHe2_tab[i]);printf("Memory allocation failed for nionHe2_tab[%d][].\n",i);
-	endrun(fnID);}
+      if(NULL == nionHe2_tab[i]){free(nionHe2_tab[i]); printf("Memory allocation failed for nionHe2_tab[%d][].\n",i); exit(0);}
     }
 }
 
-/************************************************************************/
 
-/* Secondary ionisation tables from Furlanetto & Johnson-Stoever 2010,
-   MNRAS, 404, 1869. */
+/** \brief Read in the pre-computed secondary ionisation tables. These
+ *   are from Furlanetto & Johnson-Stoever 2010, MNRAS, 404, 1869
+ */
 
 void ReadSecondaryTable(void)
 {
@@ -511,7 +513,7 @@ void ReadSecondaryTable(void)
 	{
 	  printf("Cannot read file:\n");
 	  printf("%s\n", filename);
-	  endrun(fnID);
+	  exit(0);
 	}
       fread(fheat_tab[i],sizeof(double),NESECTAB + 1,input);
       fread(nionH1_tab[i],sizeof(double),NESECTAB + 1,input);
@@ -521,4 +523,5 @@ void ReadSecondaryTable(void)
     }
 }
 
-/************************************************************************/
+
+#endif

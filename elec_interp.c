@@ -1,20 +1,34 @@
-#define fnID 6
+
+/********************************************************************************/
+
+/**! \file elec_interp.c 
+ *
+ * \brief This routine is based on the publicly available code
+ * provided by Furlanetto & Johnson-Stoever, 2010, MNRAS, 404, 1869.
+ * It has been modified to output a more finely spaced set of look-up
+ * tables that are faster to access.  The modifications to the public
+ * code are confined to MakeSecondaryTable.
+ *
+ */
+
+/********************************************************************************/
+
+#ifdef SECONDARY
+
 #include "stdio.h"
 #include "stdlib.h"
 #include "math.h"
 #include "elec_interp.h"
 
-/********************************************************************************/
-
-/* This routine is based on the publicly available code provided by
- Furlanetto & Johnson-Stoever, 2010, MNRAS, 404, 1869.  It has been
- modified to output a more finely spaced set of look-up tables that are
- faster to access.  The modifications to the public code are confined
- to MakeSecondaryTable. */
-
 #include "parameters.h"
 #include "global_vars.h"
 #include "proto.h"
+
+
+
+/** \brief Check to see if there are any tables saved, and if not,
+ * calculate and store the secondary ionisation tables for look-up.
+ */
 
 void MakeSecondaryTable(void)
 {
@@ -105,7 +119,7 @@ void MakeSecondaryTable(void)
 	    {
 	      printf("Cannot write file:\n");
 	      printf("%s\n", filename_out);
-	      endrun(fnID);
+	      exit(0);
 	    }
 	  fwrite(fheat,sizeof(double),NESECTAB+1,output);
 	  fwrite(nionH1,sizeof(double),NESECTAB+1,output);
@@ -120,7 +134,7 @@ void MakeSecondaryTable(void)
 	{
 	  printf("Cannot write file:\n");
 	  printf("%s\n", filename_tab);
-	  endrun(fnID);
+	  exit(0);
 	}
       fprintf(tab, "%lf %lf %lf\n",tab_new[0],tab_new[1],tab_new[2]);
       fprintf(tab, "%lf %lf %lf\n",tab_new[3],tab_new[4],tab_new[5]);
@@ -133,9 +147,8 @@ void MakeSecondaryTable(void)
   printf("log(E/eV) table: N=%g min=%g max=%g\n\n",tab_new[3],tab_new[4],tab_new[5]);
 }
 
+
 /****************************************************************************************/
-
-
 
 // Functions to interpolate the energy deposition fractions of high-energy secondary electrons
 // in the IGM.
@@ -173,7 +186,7 @@ void initialize_interp_arrays()
   float xHI,xHeI,xHeII,z,T;
   float trash;
   //char label[] = " ";
-  char label[100]; /* JSB 16/06/22: fix for fscanf error that occurs for some compiler options */
+   char label[100]; /* JSB 16/06/22: fix for fscanf error that occurs for some compiler options */
   
   int i;
   int n_ion;
@@ -574,3 +587,4 @@ int locate_xHII_index(float xHII_call)
   return m_xHII_low;
 }
 
+#endif

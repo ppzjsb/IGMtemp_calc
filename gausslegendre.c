@@ -1,4 +1,15 @@
-#define fnID 5
+
+/***************************************************************************/
+
+/**! \file gausslegendre.c 
+ *
+ * \brief Routine for calculating Gauss-Legendre weights used in the
+ * UVB integrals. 
+ *
+ */
+
+/***************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,9 +20,10 @@
 #include "global_vars.h"
 
 
-/***************************************************************************/
 
-/* Calculate Gauss-Legendre weights */
+/** \brief Call for the routines from main.c
+ * 
+ */
 
 void gausslegendre()
 {
@@ -21,7 +33,10 @@ void gausslegendre()
 }
 
 
-/***************************************************************************/
+
+/** \brief Calculate the absissca and weights
+ * 
+ */
 
 void absc_and_weight()
 {
@@ -55,11 +70,18 @@ void absc_and_weight()
     }
 }
 
-/***************************************************************************/
 
-/*  Computes the associated Legendre polynomial P_l^m(x).  Here m and
-    l are integers satisfying 0<=m<=l, while x lies in the range
-    -1<=x<=1. */
+
+/** \brief Computes the associated Legendre polynomial P_l^m(x).  Here
+ * m and l are integers satisfying 0<=m<=l, while x lies in the range
+ * -1<=x<=1.
+ *
+ * \param l Integer l for Legendre polynomial P_l^m(x)
+ * \param m Integer m for Legendre polynomial P_l^m(x)
+ * \param x Absissca value
+ *
+ * \return Legendre polynomial P_l^m(x)
+ */
 
 double plgndr(int l, int m, double x)
 {
@@ -106,18 +128,18 @@ double plgndr(int l, int m, double x)
   }
   
 
-/***************************************************************************/
+/** \brief Allocate memory
+ * 
+ */
 
 void InitGLMemory(void)
 {
   
   weight = (double *) calloc(NWEIGHTS, sizeof(double));
-  if(NULL==weight){free(weight);printf("Memory allocation failed for weights.\n");
-    endrun(fnID);}
+  if(NULL==weight){free(weight); printf("Memory allocation failed for weights.\n"); exit(0);}
   
   absc = (double *) calloc(NWEIGHTS, sizeof(double));
-  if(NULL==absc){free(absc);printf("Memory allocation failed for absc.\n");
-    endrun(fnID);}
+  if(NULL==absc){free(absc); printf("Memory allocation failed for absc.\n"); exit(0);}
+
 }
 
-/***************************************************************************/

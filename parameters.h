@@ -1,7 +1,7 @@
 
+
 /****************************************************************/
-/*                        Run parameters                        */
-/****************************************************************/
+/* >>> STANDARD PARAMETERS <<< */
 
 /* The UV background file (should be placed in ./uvb_models/ directory).
    Used as the default, unless the PLAW_UVB flag is raised in the
@@ -10,7 +10,7 @@
 
 /* The output file (appears in ./outputs/ directory) */
 //#define OUTFILE "Plaw_J0.1_zH6.5_zHe3.0_a3.5_d1.0.dat"
-#define OUTFILE "puchwein2019.dat"
+#define OUTFILE "puchwein2019_m8.0e-14_e5.0e-15.dat"
 
 #define ZSTART     20.0  /* initial redshift */
 #define ZEND       0.0   /* final redshift */
@@ -26,9 +26,26 @@
 #define HUBBLE 0.678
 
 /* Hydrogen mass fraction */
-#define XH     0.76  
+#define XH     0.76
+
 
 /****************************************************************/
+/* >>> DARK_PHOTON PARAMETERS <<< */
+
+/* Extra parameters if optionally running with the DARK_PHOTON flag
+   raised in the Makefile.  Calculates the heating from the resonant
+   conversion of dark photons.   See e.g.
+
+   Caputo et al. 2020, PhRvD, 102, 103533                                       
+   Caputo et al. 2020, PRL, 125, 221303   */
+
+
+#define MASS_DPHOT 8.0e-14  /* dark photon mass [eV/c^2] */
+#define EPS_DPHOT  5.0e-15 /* kinetic mixing parameter */
+
+
+/****************************************************************/
+/* >>> PLAW_UVB PARAMETERS <<< */
 
 /* Extra parameters if optionally running with the PLAW_UVB flag
    raised in the Makefile.  This calculates photoionisation and
